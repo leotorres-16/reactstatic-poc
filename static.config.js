@@ -1,7 +1,8 @@
-const fs = require('fs')
-const klaw = require('klaw')
-const path = require('path')
-const matter = require('gray-matter')
+const fs = require('fs');
+const klaw = require('klaw');
+const path = require('path');
+const matter = require('gray-matter');
+import axios from 'axios';
 
 function getPosts () {
   const items = []
@@ -47,11 +48,19 @@ export default {
     title: 'React Static with Netlify CMS',
   }),
   getRoutes: async () => {
-    const posts = await getPosts()
+    const posts = await getPosts();
+    const { data: photos } = await axios.get('https://jsonplaceholder.typicode.com/photos');
     return [
       {
         path: '/',
-        component: 'src/containers/Home',
+        component: 'src/pages/HomePage',
+      },
+      {
+        path: '/gallery',
+        component: 'src/pages/GalleryPage',
+        getData: () => ({
+          photos,
+        }),
       },
       {
         path: '/about',
@@ -64,7 +73,7 @@ export default {
           posts,
         }),
         children: posts.map(post => ({
-          path: `/post/${post.data.slug}`,
+          path: `/${post.data.slug}`,
           component: 'src/containers/Post',
           getData: () => ({
             post,
